@@ -7,12 +7,21 @@ use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
-    public function index()
-    {
-        $brands = Brand::with('models')->get();
+    public function index(Request $request)
+{
+    $kereses = $request->query('kereses');
 
-        return view('brands.index', compact('brands'));
-    }
+    $brands = Brand::with('models')
+        ->when($kereses, function ($query, $kereses) {
+            $query->where('name', 'like', "%{$kereses}%")
+                  ->orWhereHas('models', function ($q) use ($kereses) {
+                      $q->where('name', 'like', "%{$kereses}%");
+                  });
+        })
+        ->get();
+
+    return view('brands.index', compact('brands', 'kereses'));
+}
 
     public function create()
     {

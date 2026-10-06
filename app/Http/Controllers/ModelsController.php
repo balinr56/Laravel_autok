@@ -8,12 +8,21 @@ use Illuminate\Http\Request;
 
 class ModelsController extends Controller
 {
-    public function index()
-    {
-        $models = Models::with('brand')->get();
+    public function index(Request $request)
+{
+    $kereses = $request->query('kereses');
 
-        return view('models.index', compact('models'));
-    }
+    $models = Models::with('brand')
+        ->when($kereses, function ($query, $kereses) {
+            $query->where('name', 'like', "%{$kereses}%")
+                  ->orWhereHas('brand', function ($q) use ($kereses) {
+                      $q->where('name', 'like', "%{$kereses}%");
+                  });
+        })
+        ->get();
+
+    return view('models.index', compact('models', 'kereses'));
+}
 
     public function create()
     {

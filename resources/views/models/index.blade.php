@@ -8,6 +8,15 @@
 
 <a href="{{ route('models.create') }}">Új autómodell</a>
 
+<form method="GET" action="{{ route('models.index') }}">
+    <input type="text" name="kereses" value="{{ $kereses }}" placeholder="Keresés...">
+    <button type="submit">Keresés</button>
+
+    @if($kereses)
+        <a href="{{ route('models.index') }}">Szűrés törlése</a>
+    @endif
+</form>
+
 <table>
     <thead>
         <tr>
@@ -19,20 +28,15 @@
     </thead>
 
     <tbody>
-        @foreach($models as $model)
+        @forelse($models as $model)
             <tr>
                 <td>{{ $model->id }}</td>
                 <td>{{ $model->name }}</td>
                 <td>{{ $model->brand->name }}</td>
 
                 <td>
-                    <a href="{{ route('models.show', $model) }}">
-                        Megtekintés
-                    </a>
-
-                    <a href="{{ route('models.edit', $model) }}">
-                        Szerkesztés
-                    </a>
+                    <a href="{{ route('models.show', $model) }}">Megtekintés</a>
+                    <a href="{{ route('models.edit', $model) }}">Szerkesztés</a>
 
                     <form action="{{ route('models.destroy', $model) }}" method="POST">
                         @csrf
@@ -42,7 +46,11 @@
                     </form>
                 </td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="4">Nincs találat.</td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
 
